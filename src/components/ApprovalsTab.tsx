@@ -642,12 +642,12 @@ export const ApprovalsTab: React.FC<ApprovalsTabProps> = ({
             <div className="p-6 border border-slate-300 font-serif-doc text-xs space-y-4 text-slate-950">
               <div className="grid grid-cols-2 text-center">
                 <div>
-                  <div className="font-bold uppercase">ĐẢNG BỘ TỈNH MINH HÒA</div>
-                  <div className="font-bold uppercase underline">ĐẢNG ỦY - UBND XÃ MINH HÒA</div>
+                  <div className="font-bold uppercase">THÀNH ỦY - UBND TP. ĐỒNG NAI</div>
+                  <div className="font-bold uppercase underline">ĐẢNG ỦY - UBND PHƯỜNG TÂN KHAI</div>
                 </div>
                 <div>
                   <div className="font-bold uppercase">ĐẢNG CỘNG SẢN VIỆT NAM</div>
-                  <div className="italic mt-1">Minh Hòa, ngày 26 tháng 12 năm 2026</div>
+                  <div className="italic mt-1">Tân Khai, ngày 26 tháng 12 năm 2026</div>
                 </div>
               </div>
 

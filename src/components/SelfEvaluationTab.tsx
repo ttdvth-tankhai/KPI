@@ -12,8 +12,6 @@ import {
   Plus,
   Trash2,
   Info,
-  HelpCircle,
-  Building2,
 } from 'lucide-react';
 import {
   formatVnNumber,
@@ -182,7 +180,7 @@ export const SelfEvaluationTab: React.FC<SelfEvaluationTabProps> = ({
         'Rà soát tiến độ phối hợp liên thông và nâng cao chất lượng thẩm định văn bản lần đầu.',
       actionPlan2027:
         selfReview.futureDirections.slice(0, 160) ||
-        'Thực hiện kiểm soát tiến độ hàng tuần trên phần mềm V-KPI HD02 và hoàn thành 100% trước hạn.',
+        'Thực hiện kiểm soát tiến độ hàng tuần trên hệ thống e-KPI TÂN KHAI và hoàn thành 100% trước hạn.',
       targetQuarter2027: 'Quý I/2027',
       supervisor: `${profile.partyBranch} & Lãnh đạo đơn vị`,
       status: 'cam_ket',
@@ -222,29 +220,7 @@ export const SelfEvaluationTab: React.FC<SelfEvaluationTabProps> = ({
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
-          {onOpenSectorModal && (
-            <>
-              <button
-                type="button"
-                data-testid="self-eval-open-guide-btn"
-                onClick={() => onOpenSectorModal('guide')}
-                className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-amber-900 bg-amber-100 border border-amber-300 rounded-lg hover:bg-amber-200 transition-colors cursor-pointer"
-              >
-                <HelpCircle className="w-3.5 h-3.5" />
-                ? Hướng dẫn (4 bước · 10 phút)
-              </button>
-              <button
-                type="button"
-                data-testid="self-eval-open-sector-btn"
-                onClick={() => onOpenSectorModal('sector')}
-                className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer"
-              >
-                <Building2 className="w-3.5 h-3.5 text-[#7A1C24]" />
-                Đổi Khối cơ quan
-              </button>
-            </>
-          )}
+        <div className="flex flex-wrap items-center gap-2 shrink-0">
           <button
             type="button"
             onClick={handleSaveEvaluation}

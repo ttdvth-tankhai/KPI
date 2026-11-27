@@ -105,7 +105,7 @@ export const AdminPermissionsTab: React.FC<AdminPermissionsTabProps> = ({
       id: 'LOG-2',
       time: '25/12/2026 07:30',
       message: 'Đã gửi 14 cảnh báo sớm đầu việc Quý IV sắp đến hạn hoàn thành.',
-      channel: 'Ứng dụng di động V-KPI Mobile',
+      channel: 'Ứng dụng di động e-KPI Tân Khai',
     },
   ]);
   const [sendSuccessBanner, setSendSuccessBanner] = useState('');

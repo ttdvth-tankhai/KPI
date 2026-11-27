@@ -9,12 +9,10 @@ import {
   User,
   History,
   ShieldAlert,
-  Download,
   Menu,
   X,
   RotateCcw,
   Users,
-  MonitorDown,
   Building2,
   HelpCircle,
 } from 'lucide-react';
@@ -65,10 +63,7 @@ import { JobPositionsTab } from './components/JobPositionsTab';
 import { PersonalProfileTab } from './components/PersonalProfileTab';
 import { HistoryArchiveTab } from './components/HistoryArchiveTab';
 import { AdminPermissionsTab } from './components/AdminPermissionsTab';
-import {
-  DesktopInstallerModal,
-  OfflineIndicator,
-} from './components/DesktopInstallerModal';
+import { OfflineIndicator } from './components/DesktopInstallerModal';
 import { SectorOnboardingModal } from './components/SectorOnboardingModal';
 
 const ROLE_LABELS: Record<UserRole, string> = {
@@ -78,7 +73,7 @@ const ROLE_LABELS: Record<UserRole, string> = {
   admin: 'Quản trị hệ thống',
 };
 
-const STORAGE_KEY = 'vkpi_hd02_state_v2';
+const STORAGE_KEY = 'ekpi_tankhai_state_v1';
 
 function loadSavedState<T>(key: string, fallback: T): T {
   try {
@@ -138,7 +133,6 @@ export default function App() {
   const [legalBasisDocs, setLegalBasisDocs] = useState<LegalBasisDocument[]>(() =>
     loadSavedState('legalBasisDocs', INITIAL_LEGAL_BASIS_DOCS)
   );
-  const [installerModalOpen, setInstallerModalOpen] = useState(false);
   const [sectorModalOpen, setSectorModalOpen] = useState(false);
   const [sectorModalTab, setSectorModalTab] = useState<'sector' | 'guide'>('sector');
   const [toastMsg, setToastMsg] = useState('');
@@ -339,7 +333,7 @@ export default function App() {
         fileName: `Minh_chung_${pos.code}_2026.pdf`,
         fileSize: '512 KB',
         issuedDate: '2026-12-26',
-        eOfficeCode: 'EOFFICE-MH-2026-0999',
+        eOfficeCode: 'EOFFICE-TK-2026-0999',
         signedAuthority: `${profile.fullName} — ${profile.govRole}`,
         summaryExcerpt: `Hồ sơ minh chứng hoàn thành định mức vị trí việc làm ${pos.title} theo Quy định 366-QĐ/TW.`,
         verifiedSignature: true,
@@ -355,20 +349,20 @@ export default function App() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `VKPI_HD02_Bang_Tinh_KPI_${profile.employeeCode}_2026.csv`;
+    a.download = `eKPI_TanKhai_Bang_Tinh_KPI_${profile.employeeCode}_2026.csv`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
     showToast(
-      `Đã xuất dữ liệu bảng tính KPI ra file Excel/CSV: VKPI_HD02_Bang_Tinh_KPI_${profile.employeeCode}_2026.csv`
+      `Đã xuất dữ liệu bảng tính KPI ra file Excel/CSV: eKPI_TanKhai_Bang_Tinh_KPI_${profile.employeeCode}_2026.csv`
     );
   };
 
   const handleExportDatabaseJson = () => {
     const payload = {
       exportedAt: new Date().toISOString(),
-      systemVersion: 'V-KPI HD02 v2.0',
+      systemVersion: 'e-KPI TÂN KHAI v2.5',
       currentRole,
       profile,
       tasks,
@@ -388,7 +382,7 @@ export default function App() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `VKPI_HD02_CSDL_Backup_${profile.employeeCode}_2026.json`;
+    a.download = `eKPI_TanKhai_CSDL_Backup_${profile.employeeCode}_2026.json`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -460,38 +454,38 @@ export default function App() {
     items: { id: NavTabId; label: string; icon: React.ReactNode; badge?: string }[];
   }[] = [
     {
-      groupTitle: 'CÔNG VIỆC',
+      groupTitle: 'TỔNG QUAN & CÔNG VIỆC',
       items: [
         {
           id: 'overview',
-          label: 'Tổng quan',
+          label: 'Tổng quan KPI',
           icon: <LayoutDashboard className="w-4 h-4" />,
         },
         {
           id: 'tasks',
-          label: 'Công việc cá nhân',
+          label: 'Công việc & Căn cứ OCR',
           icon: <ClipboardList className="w-4 h-4" />,
           badge: `${tasks.length}`,
         },
       ],
     },
     {
-      groupTitle: 'ĐÁNH GIÁ KPI & THI ĐUA',
+      groupTitle: 'ĐÁNH GIÁ KPI & KIỂM ĐIỂM',
       items: [
         {
           id: 'self_eval',
-          label: 'Tự đánh giá',
+          label: 'Tự đánh giá & Chấm điểm',
           icon: <CheckSquare className="w-4 h-4" />,
         },
         {
           id: 'forms',
-          label: 'Mẫu biểu',
+          label: 'Mẫu biểu & In báo cáo',
           icon: <FileText className="w-4 h-4" />,
           badge: `Mẫu ${profile.templateType}`,
         },
         {
           id: 'approvals',
-          label: 'Phê duyệt',
+          label: 'Thẩm định & Phê duyệt',
           icon: <UserCheck className="w-4 h-4" />,
           badge: `${approvals.length}`,
         },
@@ -504,31 +498,26 @@ export default function App() {
       ],
     },
     {
-      groupTitle: 'THIẾT LẬP ĐÁNH GIÁ',
-      items: [
-        {
-          id: 'positions',
-          label: 'Danh mục & Vị trí',
-          icon: <Briefcase className="w-4 h-4" />,
-        },
-      ],
-    },
-    {
-      groupTitle: 'HỒ SƠ & TRA CỨU',
+      groupTitle: 'HỒ SƠ & QUẢN TRỊ ĐƠN VỊ',
       items: [
         {
           id: 'profile',
-          label: 'Hồ sơ cá nhân',
+          label: 'Hồ sơ & Quy chế đơn vị',
           icon: <User className="w-4 h-4" />,
         },
         {
+          id: 'positions',
+          label: 'Định mức Vị trí việc làm',
+          icon: <Briefcase className="w-4 h-4" />,
+        },
+        {
           id: 'history',
-          label: 'Lịch sử lưu trữ',
+          label: 'Lịch sử & Lưu trữ số',
           icon: <History className="w-4 h-4" />,
         },
         {
           id: 'admin',
-          label: 'Phân quyền & Nhắc việc',
+          label: 'Phân quyền & Hệ thống',
           icon: <ShieldAlert className="w-4 h-4" />,
         },
       ],
@@ -537,14 +526,14 @@ export default function App() {
 
   const activeTabTitle: Record<NavTabId, string> = {
     overview: 'Tổng quan KPI 4 Quý & Kiểm điểm cuối năm',
-    tasks: 'Công việc cá nhân & Kho minh chứng số E-Office',
-    self_eval: 'Tự đánh giá, Tổng hợp 4 Quý & Kế hoạch khắc phục 2027',
-    forms: `Chữ ký & In mẫu biểu (Mẫu ${profile.templateType}, Mẫu 05 & Mẫu 01)`,
-    approvals: 'Hệ thống phê duyệt trực tuyến & Giải trình 2 chiều',
+    tasks: 'Công việc cá nhân, Trích xuất OCR & Kho minh chứng số',
+    self_eval: 'Tự đánh giá KPI, Chấm điểm 1 chạm & Kế hoạch khắc phục 2027',
+    forms: `Chữ ký số & In mẫu biểu chuẩn A4 (Mẫu ${profile.templateType}, Mẫu 05 & Mẫu 01)`,
+    approvals: 'Thẩm định trực tuyến, Phê duyệt & Giải trình 2 chiều',
     collective: 'Khống chế 20% Xuất sắc, Họp Chi bộ & Xét Thi đua - Khen thưởng',
-    positions: 'Danh mục Vị trí việc làm & Định mức',
-    profile: 'Hồ sơ cá nhân & Thiết lập mẫu biểu',
-    history: 'Kho lưu trữ lịch sử đánh giá',
+    positions: 'Danh mục Vị trí việc làm & Định mức chuẩn',
+    profile: 'Hồ sơ cán bộ & Thiết lập Quy chế đơn vị',
+    history: 'Kho lưu trữ lịch sử đánh giá nhiều năm',
     admin: 'Quản trị phân quyền, Nhắc việc & Sao lưu CSDL',
   };
 
@@ -566,11 +555,19 @@ export default function App() {
       >
         <div>
           {/* Brand Header */}
-          <div className="px-5 py-5 border-b border-white/10 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="text-lg font-extrabold tracking-tight text-white whitespace-nowrap">
-                V-KPI HD02
-              </span>
+          <div className="px-5 py-4 border-b border-white/10 flex items-center justify-between">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-lg font-extrabold tracking-tight text-white whitespace-nowrap">
+                  e-KPI TÂN KHAI
+                </span>
+                <span className="px-1.5 py-0.5 rounded bg-amber-400/20 border border-amber-300/40 text-[9px] font-extrabold text-amber-200 uppercase">
+                  TP. Đồng Nai
+                </span>
+              </div>
+              <div className="text-[10px] text-rose-200/80 font-medium mt-0.5">
+                Hệ thống Đánh giá & Kiểm điểm Liên thông
+              </div>
             </div>
             <button
               type="button"
@@ -676,16 +673,6 @@ export default function App() {
               <span>Làm mới</span>
             </button>
           </div>
-
-          <button
-            type="button"
-            data-testid="sidebar-open-installer-btn"
-            onClick={() => setInstallerModalOpen(true)}
-            className="w-full mt-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-amber-400/15 hover:bg-amber-400/25 border border-amber-300/35 text-amber-200 text-xs font-bold transition-colors cursor-pointer"
-          >
-            <MonitorDown className="w-3.5 h-3.5" />
-            <span>Tạo File Cài Đặt (.EXE / App)</span>
-          </button>
         </div>
       </aside>
 
@@ -714,40 +701,25 @@ export default function App() {
             </div>
           </div>
 
-          {/* Right Zone: Primary action buttons */}
+          {/* Right Zone: Primary action buttons (Clean, non-duplicated) */}
           <div className="flex items-center gap-2 shrink-0">
             <button
               type="button"
               data-testid="topbar-open-sector-btn"
               onClick={() => handleOpenSectorModal('sector')}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-[#7A1C24] bg-rose-50 border border-rose-200 rounded-lg hover:bg-rose-100 transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-slate-700 bg-slate-100 border border-slate-300 rounded-lg hover:bg-slate-200 transition-colors whitespace-nowrap shrink-0 cursor-pointer"
             >
-              <Building2 className="w-3.5 h-3.5" />
-              <span>
-                {profile.governanceType === 'public_service_center'
-                  ? 'Khối: Đơn vị Sự nghiệp'
-                  : profile.governanceType === 'state_admin'
-                  ? 'Khối: Hành chính Nhà nước'
-                  : 'Khối: Đảng - Đoàn thể'}
-              </span>
+              <Building2 className="w-3.5 h-3.5 text-[#7A1C24]" />
+              <span>Cấu hình Loại hình Đơn vị</span>
             </button>
             <button
               type="button"
               data-testid="topbar-open-guide-btn"
               onClick={() => handleOpenSectorModal('guide')}
-              className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-bold text-amber-900 bg-amber-100 border border-amber-300 rounded-lg hover:bg-amber-200 transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-amber-900 bg-amber-100 border border-amber-300 rounded-lg hover:bg-amber-200 transition-colors whitespace-nowrap shrink-0 cursor-pointer"
             >
               <HelpCircle className="w-3.5 h-3.5" />
-              <span className="hidden md:inline">? Hướng dẫn</span>
-            </button>
-            <button
-              type="button"
-              data-testid="topbar-open-installer-btn"
-              onClick={() => setInstallerModalOpen(true)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-emerald-900 bg-emerald-100 border border-emerald-300 rounded-lg hover:bg-emerald-200 transition-colors whitespace-nowrap shrink-0 cursor-pointer"
-            >
-              <MonitorDown className="w-3.5 h-3.5 text-emerald-800" />
-              <span className="hidden sm:inline">Cài đặt (.EXE)</span>
+              <span>? Hướng dẫn 4 bước</span>
             </button>
             <button
               type="button"
@@ -828,13 +800,9 @@ export default function App() {
             </div>
           </div>
 
-          <button
-            type="button"
-            onClick={() => handleOpenSectorModal('sector')}
-            className="text-[11px] font-bold text-amber-300 hover:text-amber-200 underline cursor-pointer shrink-0"
-          >
-            Tùy chỉnh Loại hình Đơn vị Sự nghiệp & Xem ? Hướng dẫn 4 bước →
-          </button>
+          <span className="text-[11px] font-medium text-slate-300 hidden xl:inline">
+            Phường Tân Khai · TP. Đồng Nai ({profile.legalBasisDocNumber || 'QĐ-15/QĐ-ĐU'})
+          </span>
         </div>
 
         {/* Global Toast Feedback */}
@@ -1039,14 +1007,6 @@ export default function App() {
           )}
         </main>
       </div>
-
-      {/* Desktop Installer & .EXE Packaging Modal */}
-      <DesktopInstallerModal
-        isOpen={installerModalOpen}
-        onClose={() => setInstallerModalOpen(false)}
-        onExportDatabaseJson={handleExportDatabaseJson}
-        onShowToast={showToast}
-      />
 
       {/* Sector Selection & 4-Step Guide Modal */}
       <SectorOnboardingModal

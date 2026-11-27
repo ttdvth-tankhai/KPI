@@ -1002,7 +1002,7 @@ export const PersonalTasksTab: React.FC<PersonalTasksTabProps> = ({
                   <span className="text-slate-500">Cơ quan ký ban hành:</span>{' '}
                   <strong className="text-slate-900">
                     {viewingEvidenceTask.digitalEvidence?.signedAuthority ||
-                      'Đảng ủy - UBND xã Minh Hòa'}
+                      'Đảng ủy - UBND Phường Tân Khai'}
                   </strong>
                 </div>
               </div>

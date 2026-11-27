@@ -2,6 +2,54 @@
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
+    <script>
+      (function () {
+        try {
+          var origFetch = typeof window.fetch === 'function' ? window.fetch.bind(window) : undefined;
+          if (origFetch) {
+            var patchTarget = function (target) {
+              if (!target) return;
+              var desc = Object.getOwnPropertyDescriptor(target, 'fetch');
+              if (!desc || (!desc.writable && !desc.set)) {
+                try {
+                  Object.defineProperty(target, 'fetch', {
+                    configurable: true,
+                    enumerable: true,
+                    get: function () {
+                      return origFetch;
+                    },
+                    set: function (fn) {
+                      if (typeof fn === 'function') {
+                        origFetch = fn;
+                      }
+                    },
+                  });
+                } catch (_) {}
+              }
+            };
+            patchTarget(window);
+            patchTarget(Window.prototype);
+            patchTarget(globalThis);
+          }
+          window.addEventListener(
+            'error',
+            function (event) {
+              var msg = String((event && event.message) || '');
+              var file = String((event && event.filename) || '');
+              if (
+                msg.indexOf('Cannot set property fetch') !== -1 ||
+                file.indexOf('chrome-extension://') === 0
+              ) {
+                event.stopImmediatePropagation();
+                event.preventDefault();
+                return false;
+              }
+            },
+            true
+          );
+        } catch (e) {}
+      })();
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>V-KPI HD02 - Hệ thống Đánh giá KPI & Kiểm điểm Cán bộ Công chức</title>
     <meta name="description" content="Phần mềm đánh giá KPI cán bộ, công chức, viên chức theo Hướng dẫn 02, Quy định 366, Công văn 2772 & Quy định 227 với bảng tính tự động, phê duyệt trực tuyến và xuất mẫu biểu chuẩn." />
@@ -22,22 +70,6 @@
   </head>
   <body class="bg-[#F7F4F0] text-slate-900 antialiased selection:bg-[#7A1C24] selection:text-white">
     <div id="root"></div>
-    <script>
-      (function () {
-        try {
-          var desc = Object.getOwnPropertyDescriptor(window, 'fetch') || Object.getOwnPropertyDescriptor(Window.prototype, 'fetch');
-          if (desc && !desc.writable && !desc.set) {
-            var origFetch = window.fetch.bind(window);
-            Object.defineProperty(window, 'fetch', {
-              configurable: true,
-              enumerable: true,
-              get: function () { return origFetch; },
-              set: function (fn) { if (typeof fn === 'function') origFetch = fn; }
-            });
-          }
-        } catch (e) {}
-      })();
-    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

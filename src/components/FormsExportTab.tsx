@@ -161,13 +161,13 @@ export const FormsExportTab: React.FC<FormsExportTabProps> = ({
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `VKPI_HD02_Mau_${effectiveDocId}_${profile.employeeCode}.doc`;
+    a.download = `eKPI_TanKhai_Mau_${effectiveDocId}_${profile.employeeCode}.doc`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
     setExportStatusMsg(
-      `Đã xuất file Word chuẩn thể thức A4: VKPI_HD02_Mau_${effectiveDocId}_${profile.employeeCode}.doc`
+      `Đã xuất file Word chuẩn thể thức A4: eKPI_TanKhai_Mau_${effectiveDocId}_${profile.employeeCode}.doc`
     );
   };
 
@@ -303,15 +303,15 @@ export const FormsExportTab: React.FC<FormsExportTabProps> = ({
                 <div>
                   {effectiveDocId === '02D' ? (
                     <>
-                      <div className="font-bold uppercase">UBND TỈNH MINH HÒA</div>
+                      <div className="font-bold uppercase">UBND THÀNH PHỐ ĐỒNG NAI</div>
                       <div className="font-bold uppercase underline">
                         {profile.agencyName.toUpperCase()}
                       </div>
                     </>
                   ) : (
                     <>
-                      <div className="font-bold uppercase">ĐẢNG BỘ TỈNH MINH HÒA</div>
-                      <div className="font-bold uppercase underline">ĐẢNG ỦY XÃ MINH HÒA</div>
+                      <div className="font-bold uppercase">THÀNH ỦY ĐỒNG NAI</div>
+                      <div className="font-bold uppercase underline">ĐẢNG ỦY PHƯỜNG TÂN KHAI</div>
                     </>
                   )}
                 </div>
@@ -327,7 +327,7 @@ export const FormsExportTab: React.FC<FormsExportTabProps> = ({
                     <div className="font-bold uppercase underline">ĐẢNG CỘNG SẢN VIỆT NAM</div>
                   )}
                   <div className="italic text-xs mt-1.5">
-                    Minh Hòa, ngày 26 tháng 12 năm 2026
+                    Tân Khai, ngày 26 tháng 12 năm 2026
                   </div>
                 </div>
               </div>
@@ -860,13 +860,13 @@ export const FormsExportTab: React.FC<FormsExportTabProps> = ({
 
               <div className="grid grid-cols-2 gap-4 text-center">
                 <div>
-                  <div className="font-bold uppercase">ĐẢNG BỘ TỈNH MINH HÒA</div>
-                  <div className="font-bold uppercase underline">ĐẢNG ỦY XÃ MINH HÒA</div>
+                  <div className="font-bold uppercase">THÀNH ỦY ĐỒNG NAI</div>
+                  <div className="font-bold uppercase underline">ĐẢNG ỦY PHƯỜNG TÂN KHAI</div>
                 </div>
                 <div>
                   <div className="font-bold uppercase underline">ĐẢNG CỘNG SẢN VIỆT NAM</div>
                   <div className="italic text-xs mt-1.5">
-                    Minh Hòa, ngày 26 tháng 12 năm 2026
+                    Tân Khai, ngày 26 tháng 12 năm 2026
                   </div>
                 </div>
               </div>
@@ -933,13 +933,13 @@ export const FormsExportTab: React.FC<FormsExportTabProps> = ({
             <div className="space-y-5">
               <div className="grid grid-cols-2 gap-4 text-center">
                 <div>
-                  <div className="font-bold uppercase">ĐẢNG ỦY XÃ MINH HÒA</div>
+                  <div className="font-bold uppercase">ĐẢNG ỦY PHƯỜNG TÂN KHAI</div>
                   <div className="font-bold uppercase underline">{profile.partyBranch.toUpperCase()}</div>
                 </div>
                 <div>
                   <div className="font-bold uppercase underline">ĐẢNG CỘNG SẢN VIỆT NAM</div>
                   <div className="italic text-xs mt-1.5">
-                    Minh Hòa, ngày 26 tháng 12 năm 2026
+                    Tân Khai, ngày 26 tháng 12 năm 2026
                   </div>
                 </div>
               </div>
@@ -1043,9 +1043,9 @@ export const FormsExportTab: React.FC<FormsExportTabProps> = ({
 
               <div className="grid grid-cols-2 gap-4 text-center">
                 <div>
-                  <div className="font-bold uppercase">UBND XÃ MINH HÒA</div>
+                  <div className="font-bold uppercase">UBND PHƯỜNG TÂN KHAI</div>
                   <div className="font-bold uppercase underline">
-                    TRUNG TÂM DỊCH VỤ TỔNG HỢP
+                    {profile.agencyName.toUpperCase()}
                   </div>
                 </div>
                 <div>
@@ -1054,7 +1054,7 @@ export const FormsExportTab: React.FC<FormsExportTabProps> = ({
                   </div>
                   <div className="font-bold underline">Độc lập - Tự do - Hạnh phúc</div>
                   <div className="italic text-xs mt-1.5">
-                    Minh Hòa, ngày 26 tháng 12 năm 2026
+                    Tân Khai, ngày 26 tháng 12 năm 2026
                   </div>
                 </div>
               </div>
