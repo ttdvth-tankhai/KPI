@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#821D26" />
+      <stop offset="100%" stop-color="#4A0E13" />
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FDE047" />
+      <stop offset="100%" stop-color="#D97706" />
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="108" fill="url(#bgGrad)" />
+  <rect x="28" y="28" width="456" height="456" rx="88" fill="none" stroke="url(#goldGrad)" stroke-width="8" stroke-opacity="0.65" />
+  <polygon points="256,84 281,160 361,160 296,207 321,283 256,236 191,283 216,207 151,160 231,160" fill="url(#goldGrad)" />
+  <text x="256" y="370" text-anchor="middle" font-family="Arial, sans-serif" font-weight="900" font-size="88" fill="#FFFFFF" letter-spacing="4">V-KPI</text>
+  <text x="256" y="432" text-anchor="middle" font-family="Arial, sans-serif" font-weight="700" font-size="40" fill="#FDE047" letter-spacing="6">HD02 · 366</text>
+</svg>

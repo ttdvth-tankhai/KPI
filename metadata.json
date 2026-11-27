@@ -1,0 +1,6 @@
+{
+  "name": "V-KPI HD02 - Hệ thống Đánh giá KPI & Kiểm điểm Cán bộ Công chức",
+  "description": "Phần mềm đánh giá KPI cán bộ, công chức, viên chức theo Hướng dẫn 02, Quy định 366, Công văn 2772 & Quy định 227 với bảng tính tự động, phê duyệt trực tuyến và xuất mẫu biểu chuẩn.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

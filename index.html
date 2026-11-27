@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>V-KPI HD02 - Hệ thống Đánh giá KPI & Kiểm điểm Cán bộ Công chức</title>
+    <meta name="description" content="Phần mềm đánh giá KPI cán bộ, công chức, viên chức theo Hướng dẫn 02, Quy định 366, Công văn 2772 & Quy định 227 với bảng tính tự động, phê duyệt trực tuyến và xuất mẫu biểu chuẩn." />
+    <meta property="og:title" content="V-KPI HD02 - Hệ thống Đánh giá KPI & Kiểm điểm Cán bộ Công chức" />
+    <meta property="og:description" content="Phần mềm đánh giá KPI cán bộ, công chức, viên chức theo Hướng dẫn 02, Quy định 366, Công văn 2772 & Quy định 227 với bảng tính tự động, phê duyệt trực tuyến và xuất mẫu biểu chuẩn." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="theme-color" content="#7A1C24" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="V-KPI HD02" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Serif:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  </head>
+  <body class="bg-[#F7F4F0] text-slate-900 antialiased selection:bg-[#7A1C24] selection:text-white">
+    <div id="root"></div>
+    <script>
+      (function () {
+        try {
+          var desc = Object.getOwnPropertyDescriptor(window, 'fetch') || Object.getOwnPropertyDescriptor(Window.prototype, 'fetch');
+          if (desc && !desc.writable && !desc.set) {
+            var origFetch = window.fetch.bind(window);
+            Object.defineProperty(window, 'fetch', {
+              configurable: true,
+              enumerable: true,
+              get: function () { return origFetch; },
+              set: function (fn) { if (typeof fn === 'function') origFetch = fn; }
+            });
+          }
+        } catch (e) {}
+      })();
+    </script>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+
