@@ -172,9 +172,9 @@ export const PersonalProfileTab: React.FC<PersonalProfileTabProps> = ({
                 },
                 {
                   id: 'public_service_center' as UnitGovernanceType,
-                  title: '3. Đơn vị Sự nghiệp công lập (TT Dịch vụ tổng hợp)',
-                  basis: 'Quy chế đánh giá Viên chức & NLĐ riêng + NĐ 60/2021',
-                  desc: 'Áp dụng cho Trung tâm Dịch vụ tổng hợp: gắn định mức sản phẩm dịch vụ công, chỉ số hài lòng người dân (≥95%) & hệ số thu nhập tăng thêm.',
+                  title: '3. Khối Đơn vị Sự nghiệp công lập',
+                  basis: 'Trường học · Trung tâm Dịch vụ · Y tế · Ban QLDA (NĐ 60/2021)',
+                  desc: 'Áp dụng cho mọi Đơn vị sự nghiệp công lập: mở khóa thanh chấm 6 mức có nút KPH (tự quy về thang 30), chỉ số hài lòng & hệ số tự chủ.',
                 },
               ] as const
             ).map((fw) => {
@@ -202,6 +202,44 @@ export const PersonalProfileTab: React.FC<PersonalProfileTabProps> = ({
               );
             })}
           </div>
+
+          {activeGovernance === 'public_service_center' && (
+            <div className="pt-2">
+              <label
+                htmlFor="prof-psu-subtype"
+                className="block text-xs font-bold text-emerald-900 mb-1"
+              >
+                Chọn Loại hình Đơn vị Sự nghiệp công lập (Áp dụng cho mọi ngành/lĩnh vực):
+              </label>
+              <select
+                id="prof-psu-subtype"
+                value={profile.publicServiceSubtype || 'trung_tam_dich_vu_tong_hop'}
+                onChange={(e) =>
+                  handleFieldChange(
+                    'publicServiceSubtype',
+                    e.target.value as UserProfile['publicServiceSubtype']
+                  )
+                }
+                className="w-full px-3 py-2 text-xs font-bold bg-emerald-50/70 border border-emerald-300 text-emerald-950 rounded-lg"
+              >
+                <option value="trung_tam_dich_vu_tong_hop">
+                  1. Trung tâm Dịch vụ tổng hợp / Đơn vị sự nghiệp kinh tế - kỹ thuật
+                </option>
+                <option value="truong_hoc_giao_duc">
+                  2. Trường học / Cơ sở Giáo dục công lập (Mầm non, Tiểu học, THCS, THPT...)
+                </option>
+                <option value="y_te_benh_vien">
+                  3. Bệnh viện / Trung tâm Y tế / Trạm Y tế sự nghiệp công lập
+                </option>
+                <option value="van_hoa_the_thao">
+                  4. Trung tâm Văn hóa - Thông tin - Thể thao & Truyền thanh
+                </option>
+                <option value="ban_qlda_su_nghiep_khac">
+                  5. Ban Quản lý dự án / Trung tâm Phát triển quỹ đất / Đơn vị sự nghiệp khác
+                </option>
+              </select>
+            </div>
+          )}
 
           {/* Specific fields for Legal Basis Decision, Contract Type & Public Service Citizen Satisfaction */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">

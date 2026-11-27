@@ -11,9 +11,13 @@ import {
   Target,
   Plus,
   Trash2,
+  Info,
+  HelpCircle,
+  Building2,
 } from 'lucide-react';
 import {
   formatVnNumber,
+  calculateGeneralCriteriaScore,
   type GeneralCriterion,
   type QuarterSummaryRecord,
   type SelfReviewContent,
@@ -21,6 +25,7 @@ import {
   type ClassificationLevel,
   type QuarterCode,
   type RemediationCommitmentItem,
+  type CriterionRatingLevel,
 } from '../utils/kpiEngine';
 import { SELF_REVIEW_SUGGESTIONS } from '../data/mockKpiData';
 
@@ -50,6 +55,8 @@ interface SelfEvaluationTabProps {
   remediationPlan: RemediationCommitmentItem[];
   onUpdateRemediationPlan: (updated: RemediationCommitmentItem[]) => void;
   onProceedToForms: () => void;
+  unscoredTasksCount?: number;
+  onOpenSectorModal?: (tab: 'sector' | 'guide') => void;
 }
 
 const CLASSIFICATION_OPTIONS: ClassificationLevel[] = [
@@ -77,6 +84,8 @@ export const SelfEvaluationTab: React.FC<SelfEvaluationTabProps> = ({
   remediationPlan,
   onUpdateRemediationPlan,
   onProceedToForms,
+  unscoredTasksCount = 0,
+  onOpenSectorModal,
 }) => {
   const [showQuickQuarterInput, setShowQuickQuarterInput] = useState(true);
   const [savedNotice, setSavedNotice] = useState('');
@@ -84,6 +93,43 @@ export const SelfEvaluationTab: React.FC<SelfEvaluationTabProps> = ({
   const [newActionPlan2027, setNewActionPlan2027] = useState('');
   const [newTargetQuarter, setNewTargetQuarter] =
     useState<RemediationCommitmentItem['targetQuarter2027']>('Quý I/2027');
+  const [openGuideIds, setOpenGuideIds] = useState<Record<string, boolean>>({
+    'GC-1': true,
+  });
+
+  const isPublicService = profile.governanceType === 'public_service_center';
+  const generalDetail = calculateGeneralCriteriaScore(generalCriteria, 30);
+
+  const toggleCriterionGuide = (id: string) => {
+    setOpenGuideIds((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const handleSelectRatingLevel = (
+    item: GeneralCriterion,
+    level: CriterionRatingLevel
+  ) => {
+    if (level === 'KPH') {
+      onUpdateCriterion({
+        ...item,
+        ratingLevel: 'KPH',
+        passed: true,
+        selfScore: 0,
+        appraisedScore: 0,
+        note: 'KPH — Không phát sinh / Không thuộc nhiệm vụ (Không tính vào mẫu số)',
+      });
+      return;
+    }
+
+    const numericRatio = Number(level);
+    const computedScore = Math.round(item.maxScore * numericRatio * 100) / 100;
+    onUpdateCriterion({
+      ...item,
+      ratingLevel: level,
+      passed: numericRatio > 0,
+      selfScore: computedScore,
+      appraisedScore: computedScore,
+    });
+  };
 
   const handleQuarterManualChange = (
     quarter: QuarterCode,
@@ -176,7 +222,29 @@ export const SelfEvaluationTab: React.FC<SelfEvaluationTabProps> = ({
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-2">
+          {onOpenSectorModal && (
+            <>
+              <button
+                type="button"
+                data-testid="self-eval-open-guide-btn"
+                onClick={() => onOpenSectorModal('guide')}
+                className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-amber-900 bg-amber-100 border border-amber-300 rounded-lg hover:bg-amber-200 transition-colors cursor-pointer"
+              >
+                <HelpCircle className="w-3.5 h-3.5" />
+                ? Hướng dẫn (4 bước · 10 phút)
+              </button>
+              <button
+                type="button"
+                data-testid="self-eval-open-sector-btn"
+                onClick={() => onOpenSectorModal('sector')}
+                className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer"
+              >
+                <Building2 className="w-3.5 h-3.5 text-[#7A1C24]" />
+                Đổi Khối cơ quan
+              </button>
+            </>
+          )}
           <button
             type="button"
             onClick={handleSaveEvaluation}
@@ -193,6 +261,55 @@ export const SelfEvaluationTab: React.FC<SelfEvaluationTabProps> = ({
             Xem & Xuất Mẫu {profile.templateType}
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
+        </div>
+      </div>
+
+      {/* Sticky Live Evaluation Progress Bar (Inspired by Video 3: Tự đánh giá: A = .../30 · B = .../70 · Tổng = .../100 — còn X ô) */}
+      <div
+        data-testid="sticky-eval-summary-bar"
+        className="sticky top-2 z-20 rounded-xl bg-slate-900 text-white px-4 py-3 shadow-md border border-slate-700 flex flex-wrap items-center justify-between gap-3"
+      >
+        <div className="flex flex-wrap items-center gap-3 text-xs">
+          <span className="px-2.5 py-1 rounded-md bg-[#7A1C24] text-amber-200 font-extrabold">
+            {isPublicService
+              ? 'Khối Đơn vị Sự nghiệp công lập (Chấm 6 mức có KPH)'
+              : profile.governanceType === 'state_admin'
+              ? 'Khối Hành chính Nhà nước (NĐ 90 & Hướng dẫn 02)'
+              : 'Khối Đảng - Đoàn thể (Quy định 366-QĐ/TW)'}
+          </span>
+          <div className="font-mono font-bold flex flex-wrap items-center gap-2">
+            <span>
+              Tự đánh giá: <strong className="text-amber-300">A = {formatVnNumber(generalScore)}/30</strong>
+            </span>
+            <span className="text-slate-400">·</span>
+            <span>
+              <strong className="text-emerald-300">B = {formatVnNumber(kpiPillarScore)}/70</strong>
+            </span>
+            <span className="text-slate-400">·</span>
+            <span className="text-sm">
+              Tổng = <strong className="text-white underline decoration-amber-400">{formatVnNumber(totalScore)}/100</strong>
+            </span>
+          </div>
+          {generalDetail.kphCount > 0 && (
+            <span
+              data-testid="kph-normalized-badge"
+              className="px-2 py-0.5 rounded bg-amber-400/20 border border-amber-300/40 text-amber-200 text-[11px] font-semibold"
+            >
+              Đã loại {generalDetail.kphCount} tiêu chí KPH khỏi mẫu số ({formatVnNumber(generalDetail.rawSelfTotal)}/{formatVnNumber(generalDetail.activeMaxTotal)} → Tự quy về thang 30)
+            </span>
+          )}
+        </div>
+
+        <div className="flex items-center gap-2 text-xs">
+          {unscoredTasksCount > 0 ? (
+            <span className="px-2.5 py-1 rounded-md bg-rose-600 text-white font-extrabold">
+              Còn {unscoredTasksCount} ô công việc chưa chấm
+            </span>
+          ) : (
+            <span className="px-2.5 py-1 rounded-md bg-emerald-700 text-white font-bold flex items-center gap-1">
+              <CheckCircle2 className="w-3.5 h-3.5" /> Đã chấm đủ toàn bộ ({generalCriteria.length} tiêu chí A + 100% đầu việc B)
+            </span>
+          )}
         </div>
       </div>
 
@@ -390,19 +507,21 @@ export const SelfEvaluationTab: React.FC<SelfEvaluationTabProps> = ({
             </div>
           </div>
 
-          {/* Card 2: Rà soát tiêu chí chung (30 điểm - Quy định 366-QĐ/TW) */}
+          {/* Card 2: Rà soát tiêu chí chung (30 điểm - Quy định 366-QĐ/TW & Quy chế Đơn vị Sự nghiệp công lập) */}
           <div className="bg-white rounded-xl border border-slate-200/90 p-5 space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
               <div>
                 <div className="text-xs font-bold text-[#7A1C24]">
-                  I. NHÓM TIÊU CHÍ CHUNG (TỐI ĐA 30 ĐIỂM — THEO QUY ĐỊNH 366-QĐ/TW)
+                  {isPublicService
+                    ? 'I. NHÓM TIÊU CHÍ CHUNG (TỐI ĐA 30 ĐIỂM — QUY CHẾ ĐƠN VỊ SỰ NGHIỆP CÔNG LẬP · CHẤM 6 MỨC & KPH)'
+                    : 'I. NHÓM TIÊU CHÍ CHUNG (TỐI ĐA 30 ĐIỂM — THEO QUY ĐỊNH 366-QĐ/TW & HƯỚNG DẪN 02)'}
                 </div>
                 <h2 className="text-base font-bold text-slate-900 mt-0.5">
                   Rà soát phẩm chất chính trị, đạo đức, lối sống, tác phong và kỷ luật
                 </h2>
               </div>
               <div className="text-right font-mono">
-                <span className="text-xs text-slate-500">Tổng điểm tự chấm: </span>
+                <span className="text-xs text-slate-500">Điểm A tự tính: </span>
                 <span
                   data-testid="general-criteria-score"
                   className="text-base font-extrabold text-[#7A1C24] tabular-nums"
@@ -412,83 +531,233 @@ export const SelfEvaluationTab: React.FC<SelfEvaluationTabProps> = ({
               </div>
             </div>
 
-            <div className="divide-y divide-slate-200 border border-slate-200 rounded-lg overflow-hidden">
-              {generalCriteria.map((item) => (
-                <div
-                  key={item.id}
-                  className="p-3.5 hover:bg-slate-50/70 transition-colors grid grid-cols-1 sm:grid-cols-12 gap-3 items-start text-xs"
+            {/* Banner explaining the active sector's scoring rule */}
+            <div
+              className={`p-3 rounded-lg border text-xs flex flex-wrap items-center justify-between gap-2 ${
+                isPublicService
+                  ? 'bg-emerald-50/70 border-emerald-200 text-emerald-950'
+                  : 'bg-rose-50/50 border-rose-200 text-slate-800'
+              }`}
+            >
+              <div>
+                {isPublicService ? (
+                  <span>
+                    <strong>Chế độ Đơn vị Sự nghiệp công lập:</strong> Chạm 1 mức{' '}
+                    <code className="font-bold">1 · 0,75 · 0,5 · 0,25 · 0 · KPH</code>. Tiêu chí không thuộc nhiệm vụ chọn{' '}
+                    <strong className="text-emerald-800">KPH (Không phát sinh)</strong> — không trừ điểm, không tính vào mẫu số, tự quy về thang 30.
+                  </span>
+                ) : (
+                  <span>
+                    <strong>Chế độ Chuẩn Quy định 366-QĐ/TW & Hướng dẫn 02:</strong> Đánh giá theo chuẩn{' '}
+                    <strong className="text-[#7A1C24]">Đảm bảo (Tối đa) / Không đảm bảo (0đ)</strong> để khớp 100% với mẫu biểu Trung ương.
+                  </span>
+                )}
+              </div>
+              {onOpenSectorModal && (
+                <button
+                  type="button"
+                  onClick={() => onOpenSectorModal('sector')}
+                  className="text-[11px] font-extrabold text-[#7A1C24] underline hover:text-slate-900 cursor-pointer shrink-0"
                 >
-                  <div className="sm:col-span-7 space-y-1">
-                    <div className="text-[11px] font-bold text-[#7A1C24]">{item.group}</div>
-                    <div className="text-slate-800 leading-relaxed">
-                      <strong className="font-mono">{item.code}</strong> {item.title}
+                  Đổi sang {isPublicService ? 'Khối Đảng / Nhà nước' : 'Khối Đơn vị Sự nghiệp (có nút KPH)'} →
+                </button>
+              )}
+            </div>
+
+            <div className="divide-y divide-slate-200 border border-slate-200 rounded-lg overflow-hidden">
+              {generalCriteria.map((item) => {
+                const isGuideOpen = !!openGuideIds[item.id];
+                const isKph = item.ratingLevel === 'KPH';
+                const currentRatio: CriterionRatingLevel = isKph
+                  ? 'KPH'
+                  : !item.passed || item.selfScore === 0
+                  ? 0
+                  : item.ratingLevel ??
+                    (Math.abs(item.selfScore - item.maxScore) < 0.01
+                      ? 1
+                      : Math.abs(item.selfScore - item.maxScore * 0.75) < 0.26
+                      ? 0.75
+                      : Math.abs(item.selfScore - item.maxScore * 0.5) < 0.26
+                      ? 0.5
+                      : 0.25);
+
+                const levelLabelMap: Record<string, string> = {
+                  '1': 'Đạt đầy đủ (100%)',
+                  '0.75': 'Cơ bản đạt (75%)',
+                  '0.5': 'Đạt một phần (50%)',
+                  '0.25': 'Còn hạn chế (25%)',
+                  '0': 'Không đạt / Vi phạm (0 điểm — vẫn tính vào mẫu số)',
+                  KPH: 'KPH: Không phát sinh / Không thuộc nhiệm vụ — Không trừ điểm, không đưa vào mẫu số',
+                };
+
+                return (
+                  <div
+                    key={item.id}
+                    className="p-4 hover:bg-slate-50/70 transition-colors space-y-2.5 text-xs"
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-[11px] font-bold text-[#7A1C24]">{item.group}</span>
+                        {item.legalCitation && (
+                          <span className="px-2 py-0.5 rounded bg-slate-100 border border-slate-200 text-[10px] font-mono text-slate-600">
+                            {item.legalCitation}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          data-testid={`toggle-guide-${item.code}`}
+                          onClick={() => toggleCriterionGuide(item.id)}
+                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-50 border border-amber-200 text-amber-900 text-[11px] font-bold hover:bg-amber-100 cursor-pointer"
+                        >
+                          <Info className="w-3 h-3 text-amber-700" />
+                          <span>Cách chấm</span>
+                        </button>
+                        <span className="text-[11px] text-slate-500">
+                          Tối đa:{' '}
+                          <strong className="font-mono text-slate-900">
+                            {formatVnNumber(item.maxScore)}đ
+                          </strong>
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="text-slate-900 font-medium leading-relaxed">
+                      <strong className="font-mono text-[#7A1C24]">{item.code}</strong> {item.title}
+                    </div>
+
+                    {/* Expandable ⓘ Cách chấm Box (From Video 3) */}
+                    {isGuideOpen && (
+                      <div className="p-3 rounded-lg bg-amber-50/60 border border-amber-200/90 text-[11px] text-slate-700 space-y-1">
+                        <div className="font-bold text-amber-950">
+                          Nội dung đánh giá & Hướng dẫn chấm tiêu chí {item.code}:
+                        </div>
+                        <p className="leading-relaxed">
+                          {item.scoringGuide ||
+                            'Đánh giá mức độ chấp hành và kết quả thực hiện thực tế trong kỳ dựa trên hồ sơ minh chứng.'}
+                        </p>
+                        {isPublicService && (
+                          <p className="text-emerald-900 font-semibold pt-1">
+                            • Lưu ý KPH: Nếu tiêu chí này không phát sinh hoặc không thuộc nhiệm vụ được phân công theo Quy chế Đơn vị sự nghiệp, hãy chọn nút KPH (không trừ điểm, không đưa vào mẫu số).
+                          </p>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Scoring Controls: 6-level 1-touch buttons for Public Service Units OR Standard QĐ 366 + Quick buttons */}
+                    <div className="pt-1 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                      <div className="space-y-1.5">
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          {(isPublicService
+                            ? ([1, 0.75, 0.5, 0.25, 0, 'KPH'] as CriterionRatingLevel[])
+                            : ([1, 0.75, 0.5, 0] as CriterionRatingLevel[])
+                          ).map((lvl) => {
+                            const isSelected = String(currentRatio) === String(lvl);
+                            const labelText =
+                              lvl === 'KPH'
+                                ? 'KPH'
+                                : lvl === 1
+                                ? '1 (Đảm bảo)'
+                                : String(lvl).replace('.', ',');
+
+                            return (
+                              <button
+                                key={String(lvl)}
+                                type="button"
+                                data-testid={`crit-lvl-${item.code}-${String(lvl)}`}
+                                onClick={() => handleSelectRatingLevel(item, lvl)}
+                                className={`px-3 py-1.5 rounded-lg font-mono text-xs font-extrabold border transition-all cursor-pointer ${
+                                  isSelected
+                                    ? lvl === 'KPH'
+                                      ? 'bg-slate-900 text-amber-300 border-slate-900 shadow-xs'
+                                      : lvl === 0
+                                      ? 'bg-red-600 text-white border-red-600 shadow-xs'
+                                      : 'bg-[#7A1C24] text-white border-[#7A1C24] shadow-xs'
+                                    : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-100'
+                                }`}
+                              >
+                                {labelText}
+                              </button>
+                            );
+                          })}
+                        </div>
+
+                        {/* Live Level Name & Formula Calculation underneath (Video 3 pattern) */}
+                        <div className="text-[11px] font-semibold">
+                          {isKph ? (
+                            <span className="text-slate-900 bg-amber-100 px-2 py-0.5 rounded border border-amber-300">
+                              {levelLabelMap.KPH}
+                            </span>
+                          ) : (
+                            <span
+                              className={
+                                item.passed && item.selfScore > 0
+                                  ? 'text-emerald-800'
+                                  : 'text-red-700'
+                              }
+                            >
+                              {levelLabelMap[String(currentRatio)] || 'Đạt yêu cầu'} →{' '}
+                              <strong className="font-mono">
+                                {formatVnNumber(item.passed ? item.selfScore : 0)} điểm
+                              </strong>{' '}
+                              <span className="text-slate-500 font-normal">
+                                (Tối đa {formatVnNumber(item.maxScore)}đ)
+                              </span>
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Manual fine-tune score & evidence note */}
+                      <div className="flex flex-wrap sm:flex-nowrap items-center gap-2">
+                        {!isKph && (
+                          <div className="flex items-center gap-1.5">
+                            <label
+                              htmlFor={`crit-score-${item.id}`}
+                              className="text-[11px] text-slate-500 whitespace-nowrap"
+                            >
+                              Điểm:
+                            </label>
+                            <input
+                              id={`crit-score-${item.id}`}
+                              type="number"
+                              step="0.25"
+                              min={0}
+                              max={item.maxScore}
+                              disabled={!item.passed}
+                              value={item.passed ? item.selfScore : 0}
+                              onChange={(e) =>
+                                onUpdateCriterion({
+                                  ...item,
+                                  selfScore: Math.min(
+                                    item.maxScore,
+                                    Math.max(0, Number(e.target.value))
+                                  ),
+                                })
+                              }
+                              className="w-16 px-2 py-1 text-right font-mono font-bold text-slate-900 border border-slate-300 rounded focus:outline-none focus:border-[#7A1C24] tabular-nums"
+                            />
+                          </div>
+                        )}
+                        <input
+                          type="text"
+                          aria-label={`Ghi chú tiêu chí ${item.code}`}
+                          value={item.note}
+                          onChange={(e) =>
+                            onUpdateCriterion({
+                              ...item,
+                              note: e.target.value,
+                            })
+                          }
+                          placeholder="Ghi chú minh chứng..."
+                          className="w-full sm:w-44 px-2 py-1 text-[11px] bg-slate-50 border border-slate-200 rounded text-slate-600 focus:outline-none focus:bg-white focus:border-[#7A1C24]"
+                        />
+                      </div>
                     </div>
                   </div>
-
-                  <div className="sm:col-span-2 flex sm:flex-col items-center sm:items-end justify-between gap-1">
-                    <span className="text-[11px] text-slate-500">
-                      Tối đa: <strong className="font-mono">{formatVnNumber(item.maxScore)}đ</strong>
-                    </span>
-                    <select
-                      aria-label={`Trạng thái đảm bảo tiêu chí ${item.code}`}
-                      value={item.passed ? 'passed' : 'failed'}
-                      onChange={(e) => {
-                        const isPassed = e.target.value === 'passed';
-                        onUpdateCriterion({
-                          ...item,
-                          passed: isPassed,
-                          selfScore: isPassed ? item.maxScore : 0,
-                        });
-                      }}
-                      className={`px-2 py-1 rounded border text-[11px] font-semibold cursor-pointer ${
-                        item.passed
-                          ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
-                          : 'bg-red-50 border-red-200 text-red-700'
-                      }`}
-                    >
-                      <option value="passed">Đảm bảo</option>
-                      <option value="failed">Không đảm bảo (0đ)</option>
-                    </select>
-                  </div>
-
-                  <div className="sm:col-span-3 space-y-1.5">
-                    <div className="flex items-center justify-between gap-2">
-                      <label htmlFor={`crit-score-${item.id}`} className="text-[11px] text-slate-500">
-                        Điểm chấm:
-                      </label>
-                      <input
-                        id={`crit-score-${item.id}`}
-                        type="number"
-                        step="0.5"
-                        min={0}
-                        max={item.maxScore}
-                        disabled={!item.passed}
-                        value={item.passed ? item.selfScore : 0}
-                        onChange={(e) =>
-                          onUpdateCriterion({
-                            ...item,
-                            selfScore: Math.min(item.maxScore, Math.max(0, Number(e.target.value))),
-                          })
-                        }
-                        className="w-20 px-2 py-1 text-right font-mono font-bold text-slate-900 border border-slate-300 rounded focus:outline-none focus:border-[#7A1C24] tabular-nums"
-                      />
-                    </div>
-                    <input
-                      type="text"
-                      aria-label={`Ghi chú tiêu chí ${item.code}`}
-                      value={item.note}
-                      onChange={(e) =>
-                        onUpdateCriterion({
-                          ...item,
-                          note: e.target.value,
-                        })
-                      }
-                      placeholder="Ghi chú minh chứng..."
-                      className="w-full px-2 py-1 text-[11px] bg-slate-50 border border-slate-200 rounded text-slate-600 focus:outline-none focus:bg-white focus:border-[#7A1C24]"
-                    />
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
 

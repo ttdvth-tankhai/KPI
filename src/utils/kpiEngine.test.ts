@@ -300,3 +300,60 @@ test('extractAdministrativeDocumentOcr extracts docNumber, date, governanceScope
   assert.equal(publicServiceDoc.extractedTasks.length, 2);
 });
 
+test('calculateGeneralCriteriaScore normalizes denominator to 30 when KPH (Không phát sinh) is selected (Video 3 formula: 27.5/28 * 30 = 29.46)', () => {
+  const criteriaWithKph: GeneralCriterion[] = [
+    {
+      id: 'g1',
+      code: '1.1',
+      group: 'I. Chính trị, tư tưởng',
+      title: 'Tiêu chí đạt đầy đủ (26/26 điểm)',
+      maxScore: 26,
+      selfScore: 26,
+      appraisedScore: 26,
+      passed: true,
+      ratingLevel: 1,
+      note: '',
+    },
+    {
+      id: 'g2',
+      code: '1.2',
+      group: 'II. Đạo đức, lối sống',
+      title: 'Tiêu chí cơ bản đạt 0,75 × 2 = 1,5 điểm',
+      maxScore: 2,
+      selfScore: 1.5,
+      appraisedScore: 1.5,
+      passed: true,
+      ratingLevel: 0.75,
+      note: '',
+    },
+    {
+      id: 'g3',
+      code: '1.3',
+      group: 'III. Tác phong, lề lối làm việc',
+      title: 'Tiêu chí không phát sinh (KPH) — Không tính vào mẫu số',
+      maxScore: 2,
+      selfScore: 0,
+      appraisedScore: 0,
+      passed: true,
+      ratingLevel: 'KPH',
+      note: 'KPH',
+    },
+  ];
+
+  const res = calculateGeneralCriteriaScore(criteriaWithKph, 30);
+  assert.equal(res.kphCount, 1);
+  assert.equal(res.activeMaxTotal, 28);
+  assert.equal(res.rawSelfTotal, 27.5);
+  assert.equal(res.selfTotal, 29.46);
+
+  const pubEval = calculatePublicServiceEvaluation(
+    93.74,
+    92.0,
+    96.8,
+    'Hoàn thành xuất sắc nhiệm vụ'
+  );
+  assert.equal(pubEval.effectiveClassification, 'Hoàn thành xuất sắc nhiệm vụ');
+  assert.equal(pubEval.bonusCoefficient, 1.5);
+});
+
+

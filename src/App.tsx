@@ -15,6 +15,8 @@ import {
   RotateCcw,
   Users,
   MonitorDown,
+  Building2,
+  HelpCircle,
 } from 'lucide-react';
 import {
   calculateWeightedQuarterKpi,
@@ -67,6 +69,7 @@ import {
   DesktopInstallerModal,
   OfflineIndicator,
 } from './components/DesktopInstallerModal';
+import { SectorOnboardingModal } from './components/SectorOnboardingModal';
 
 const ROLE_LABELS: Record<UserRole, string> = {
   staff: 'Cán bộ / Công chức',
@@ -136,7 +139,14 @@ export default function App() {
     loadSavedState('legalBasisDocs', INITIAL_LEGAL_BASIS_DOCS)
   );
   const [installerModalOpen, setInstallerModalOpen] = useState(false);
+  const [sectorModalOpen, setSectorModalOpen] = useState(false);
+  const [sectorModalTab, setSectorModalTab] = useState<'sector' | 'guide'>('sector');
   const [toastMsg, setToastMsg] = useState('');
+
+  const handleOpenSectorModal = (tab: 'sector' | 'guide') => {
+    setSectorModalTab(tab);
+    setSectorModalOpen(true);
+  };
 
   // Auto-save to localStorage whenever state updates
   useEffect(() => {
@@ -705,7 +715,31 @@ export default function App() {
           </div>
 
           {/* Right Zone: Primary action buttons */}
-          <div className="flex items-center gap-2.5 shrink-0">
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              data-testid="topbar-open-sector-btn"
+              onClick={() => handleOpenSectorModal('sector')}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-[#7A1C24] bg-rose-50 border border-rose-200 rounded-lg hover:bg-rose-100 transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+            >
+              <Building2 className="w-3.5 h-3.5" />
+              <span>
+                {profile.governanceType === 'public_service_center'
+                  ? 'Khối: Đơn vị Sự nghiệp'
+                  : profile.governanceType === 'state_admin'
+                  ? 'Khối: Hành chính Nhà nước'
+                  : 'Khối: Đảng - Đoàn thể'}
+              </span>
+            </button>
+            <button
+              type="button"
+              data-testid="topbar-open-guide-btn"
+              onClick={() => handleOpenSectorModal('guide')}
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-bold text-amber-900 bg-amber-100 border border-amber-300 rounded-lg hover:bg-amber-200 transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+            >
+              <HelpCircle className="w-3.5 h-3.5" />
+              <span className="hidden md:inline">? Hướng dẫn</span>
+            </button>
             <button
               type="button"
               data-testid="topbar-open-installer-btn"
@@ -713,15 +747,7 @@ export default function App() {
               className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-emerald-900 bg-emerald-100 border border-emerald-300 rounded-lg hover:bg-emerald-200 transition-colors whitespace-nowrap shrink-0 cursor-pointer"
             >
               <MonitorDown className="w-3.5 h-3.5 text-emerald-800" />
-              <span>Cài đặt Máy tính (.EXE)</span>
-            </button>
-            <button
-              type="button"
-              onClick={handleExportCsv}
-              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-700 bg-slate-100 rounded-lg hover:bg-slate-200 transition-colors whitespace-nowrap shrink-0 cursor-pointer"
-            >
-              <Download className="w-3.5 h-3.5" />
-              Xuất CSV / Excel
+              <span className="hidden sm:inline">Cài đặt (.EXE)</span>
             </button>
             <button
               type="button"
@@ -736,6 +762,80 @@ export default function App() {
             </button>
           </div>
         </header>
+
+        {/* Global 3-Sector Quick Switcher Bar right under Top Header */}
+        <div
+          data-testid="global-sector-switcher-bar"
+          className="bg-slate-900 text-slate-100 px-4 sm:px-8 py-2 flex flex-wrap items-center justify-between gap-2 text-xs border-b border-slate-800 no-print"
+        >
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-[11px] font-bold text-amber-300 uppercase tracking-wide">
+              Chọn nhanh Khối cơ quan áp dụng:
+            </span>
+            <div className="flex flex-wrap items-center gap-1.5">
+              {(
+                [
+                  {
+                    id: 'party_org',
+                    label: '1. Khối Đảng - Đoàn thể (QĐ 366)',
+                  },
+                  {
+                    id: 'state_admin',
+                    label: '2. Khối Hành chính Nhà nước (NĐ 90 & HD 02)',
+                  },
+                  {
+                    id: 'public_service_center',
+                    label: '3. Khối Đơn vị Sự nghiệp công lập (Trường học · Trung tâm · Y tế · KPH)',
+                  },
+                ] as const
+              ).map((sec) => {
+                const isActive = (profile.governanceType || 'party_org') === sec.id;
+                return (
+                  <button
+                    key={sec.id}
+                    type="button"
+                    data-testid={`quick-sector-btn-${sec.id}`}
+                    onClick={() => {
+                      setProfile((prev) => ({
+                        ...prev,
+                        governanceType: sec.id,
+                        contractType:
+                          sec.id === 'public_service_center'
+                            ? 'Hợp đồng làm việc Viên chức'
+                            : 'Biên chế công chức',
+                        legalBasisDocNumber:
+                          sec.id === 'public_service_center'
+                            ? prev.legalBasisDocNumber?.includes('SNCL') ||
+                              prev.legalBasisDocNumber?.includes('TTDVTH')
+                              ? prev.legalBasisDocNumber
+                              : 'QĐ-108/QĐ-TTDVTH'
+                            : sec.id === 'state_admin'
+                            ? 'QĐ-89/QĐ-UBND'
+                            : 'QĐ-15/QĐ-ĐU',
+                      }));
+                      showToast(`Đã chuyển chế độ đánh giá sang: ${sec.label}`);
+                    }}
+                    className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition-colors cursor-pointer ${
+                      isActive
+                        ? 'bg-[#7A1C24] text-amber-200 border border-amber-300/40 shadow-xs'
+                        : 'bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white'
+                    }`}
+                  >
+                    {sec.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => handleOpenSectorModal('sector')}
+            className="text-[11px] font-bold text-amber-300 hover:text-amber-200 underline cursor-pointer shrink-0"
+          >
+            Tùy chỉnh Loại hình Đơn vị Sự nghiệp & Xem ? Hướng dẫn 4 bước →
+          </button>
+        </div>
 
         {/* Global Toast Feedback */}
         {toastMsg && (
@@ -814,6 +914,8 @@ export default function App() {
               onUpdateSelfReview={setSelfReview}
               remediationPlan={remediationPlan}
               onUpdateRemediationPlan={setRemediationPlan}
+              unscoredTasksCount={Math.max(0, kpiCalc.totalTasks - kpiCalc.selfScoredTasks)}
+              onOpenSectorModal={handleOpenSectorModal}
               onProceedToForms={() => {
                 setRequestedFormDocId(profile.templateType);
                 setActiveTab('forms');
@@ -943,6 +1045,16 @@ export default function App() {
         isOpen={installerModalOpen}
         onClose={() => setInstallerModalOpen(false)}
         onExportDatabaseJson={handleExportDatabaseJson}
+        onShowToast={showToast}
+      />
+
+      {/* Sector Selection & 4-Step Guide Modal */}
+      <SectorOnboardingModal
+        isOpen={sectorModalOpen}
+        initialTab={sectorModalTab}
+        profile={profile}
+        onUpdateProfile={setProfile}
+        onClose={() => setSectorModalOpen(false)}
         onShowToast={showToast}
       />
 

@@ -181,8 +181,37 @@ export const DEMO_ACCOUNTS: DemoAccountPreset[] = [
       email: 'hung.levan@minhhoa.gov.vn',
       phone: '0918.108.227',
       governanceType: 'public_service_center',
+      publicServiceSubtype: 'trung_tam_dich_vu_tong_hop',
       legalBasisDocNumber: 'QĐ-108/QĐ-TTDVTH',
       citizenSatisfactionRate: 97.5,
+      contractType: 'Hợp đồng làm việc Viên chức',
+    },
+  },
+  {
+    accountId: 'acc-lan-school-psu',
+    label: 'Nguyễn Thị Mai Lan — Giáo viên / Viên chức Trường THCS (Đơn vị Sự nghiệp · Chấm 6 mức có KPH)',
+    role: 'staff',
+    profile: {
+      fullName: 'Nguyễn Thị Mai Lan',
+      dob: '1992-10-15',
+      employeeCode: 'VC-2026-102',
+      agencyName: 'Trường Trung học cơ sở Minh Hòa (Đơn vị Sự nghiệp công lập)',
+      department: 'Tổ Khoa học Tự nhiên & Chuyển đổi số Giáo dục',
+      partyBranch: 'Chi bộ Trường THCS Minh Hòa',
+      partyCommittee: 'Đảng bộ xã Minh Hòa',
+      partyRole: 'Không (Viên chức Giáo viên ngoài Đảng)',
+      govRole: 'Giáo viên Hạng II · Tổ phó Chuyên môn',
+      unionRole: 'Ủy viên Ban Chấp hành Công đoàn Trường',
+      concurrentRole: '',
+      hasConcurrentRole: false,
+      templateType: '02D',
+      jobPositionId: 'pos-public-service-center',
+      email: 'lan.nguyenthimai@thcsminhhoa.edu.vn',
+      phone: '0907.136.029',
+      governanceType: 'public_service_center',
+      publicServiceSubtype: 'truong_hoc_giao_duc',
+      legalBasisDocNumber: 'QĐ-223/QĐ-SNCL',
+      citizenSatisfactionRate: 98.4,
       contractType: 'Hợp đồng làm việc Viên chức',
     },
   },
@@ -382,6 +411,10 @@ export const INITIAL_GENERAL_CRITERIA: GeneralCriterion[] = [
     selfScore: 3.0,
     appraisedScore: 3.0,
     passed: true,
+    ratingLevel: 1,
+    legalCitation: 'Quy định 366-QĐ/TW · Nghị định 90/2020/NĐ-CP Điều 3 · Phụ lục 1 mục 1 điểm a',
+    scoringGuide:
+      'Tích cực tham gia học tập nghị quyết, bồi dưỡng chính trị, chuyên môn nghiệp vụ. Không phát ngôn hoặc đăng tải thông tin trái quy định gây ảnh hưởng đến uy tín của cơ quan, đơn vị, trường học và ngành.',
     note: 'Chấp hành nghiêm túc 100% nghị quyết, chỉ thị',
   },
   {
@@ -394,6 +427,10 @@ export const INITIAL_GENERAL_CRITERIA: GeneralCriterion[] = [
     selfScore: 3.0,
     appraisedScore: 3.0,
     passed: true,
+    ratingLevel: 1,
+    legalCitation: 'Quy định 366-QĐ/TW · Hướng dẫn 02 · Phụ lục 1 mục 1 điểm b',
+    scoringGuide:
+      'Giữ vững bản lĩnh chính trị, bảo vệ nền tảng tư tưởng của Đảng; không suy thoái tư tưởng chính trị. Nếu có vi phạm kỷ luật phát ngôn thì chấm mức 0 (Không đảm bảo).',
     note: 'Tích cực tham gia Ban Chỉ đạo 35 tại cơ sở',
   },
   {
@@ -401,11 +438,15 @@ export const INITIAL_GENERAL_CRITERIA: GeneralCriterion[] = [
     code: '1.3',
     group: 'II. Đạo đức, lối sống',
     title:
-      'Giữ gìn phẩm chất đạo đức, lối sống trong sáng, trung thực, khiêm tốn, giản dị; thực hiện nghiêm quy định về những điều đảng viên, cán bộ, công chức không được làm và trách nhiệm nêu gương.',
+      'Giữ gìn phẩm chất đạo đức, lối sống trong sáng, trung thực, khiêm tốn, giản dị; thực hiện nghiêm quy định về những điều đảng viên, cán bộ, công chức, viên chức không được làm và trách nhiệm nêu gương.',
     maxScore: 4.0,
     selfScore: 3.5,
     appraisedScore: 3.5,
     passed: true,
+    ratingLevel: 0.75,
+    legalCitation: 'Quy định 366-QĐ/TW · Luật Viên chức · Phụ lục 1 mục 2 điểm a',
+    scoringGuide:
+      'Giữ gìn phẩm chất đạo đức công vụ, đạo đức nghề nghiệp và chuẩn mực cán bộ/viên chức. Mức 1 (100%): Gương mẫu toàn diện; Mức 0,75 (75%): Cơ bản đạt chuẩn; Mức 0: Vi phạm quy định những điều không được làm.',
     note: 'Gương mẫu trong sinh hoạt chi bộ và cơ quan',
   },
   {
@@ -418,6 +459,10 @@ export const INITIAL_GENERAL_CRITERIA: GeneralCriterion[] = [
     selfScore: 4.0,
     appraisedScore: 4.0,
     passed: true,
+    ratingLevel: 1,
+    legalCitation: 'Quy định 366-QĐ/TW · Nghị định 90/2020/NĐ-CP · Phụ lục 1 mục 2 điểm b',
+    scoringGuide:
+      'Có tinh thần đoàn kết, tự phê bình và phê bình trung thực; thực hành tiết kiệm, chống lãng phí tại đơn vị. Không để xảy ra mất đoàn kết nội bộ hoặc đơn thư phản ánh tiêu cực.',
     note: 'Nội bộ phòng đoàn kết, thống nhất cao',
   },
   {
@@ -430,6 +475,10 @@ export const INITIAL_GENERAL_CRITERIA: GeneralCriterion[] = [
     selfScore: 3.5,
     appraisedScore: 3.5,
     passed: true,
+    ratingLevel: 0.75,
+    legalCitation: 'Hướng dẫn 02 · Quy định 227-QĐ/TW · Phụ lục 1 mục 3 điểm a',
+    scoringGuide:
+      'Chủ động đề xuất sáng kiến, cải tiến quy trình chuyên môn, ứng dụng chuyển đổi số trong giải quyết công việc. Mức 1: Có sáng kiến hiệu quả; Mức 0,75: Hoàn thành chủ động theo kế hoạch.',
     note: 'Có sáng kiến chuẩn hóa quy trình KPI điện tử',
   },
   {
@@ -437,11 +486,15 @@ export const INITIAL_GENERAL_CRITERIA: GeneralCriterion[] = [
     code: '1.6',
     group: 'III. Tác phong, lề lối làm việc',
     title:
-      'Thái độ công tâm, khách quan, tận tụy phục vụ Nhân dân; không gây phiền hà, sách nhiễu trong giải quyết thủ tục hành chính; hợp tác, phối hợp chặt chẽ với đồng nghiệp và các bộ phận liên quan.',
+      'Thái độ công tâm, khách quan, tận tụy phục vụ Nhân dân/Khách hàng/Học sinh; không gây phiền hà, sách nhiễu; hợp tác, phối hợp chặt chẽ với đồng nghiệp và các bộ phận liên quan.',
     maxScore: 4.0,
     selfScore: 3.5,
     appraisedScore: 3.5,
     passed: true,
+    ratingLevel: 0.75,
+    legalCitation: 'Nghị định 60/2021/NĐ-CP · Quy chế Đơn vị sự nghiệp · Phụ lục 1 mục 3 điểm b',
+    scoringGuide:
+      'Đảm bảo thái độ phục vụ chuẩn mực, tỷ lệ hài lòng của người dân/khách hàng đạt chỉ tiêu quy chế. Nếu vị trí công việc nội bộ hoàn toàn không phát sinh giao tiếp/phục vụ trực tiếp (theo quy chế ĐVSN) có thể chọn KPH (Không phát sinh — không trừ điểm, không tính vào mẫu số).',
     note: 'Tỷ lệ hài lòng của người dân đạt 99,2%',
   },
   {
@@ -454,6 +507,10 @@ export const INITIAL_GENERAL_CRITERIA: GeneralCriterion[] = [
     selfScore: 3.5,
     appraisedScore: 3.5,
     passed: true,
+    ratingLevel: 0.75,
+    legalCitation: 'Quy định 366-QĐ/TW · Quy chế làm việc cơ quan · Phụ lục 1 mục 4 điểm a',
+    scoringGuide:
+      'Đảm bảo ngày giờ công, trang phục, văn hóa công sở và nộp báo cáo định kỳ đúng hạn. Không tự ý bỏ vị trí làm việc hoặc vi phạm quy định bảo mật.',
     note: 'Đảm bảo tuyệt đối an toàn thông tin mật',
   },
   {
@@ -461,11 +518,15 @@ export const INITIAL_GENERAL_CRITERIA: GeneralCriterion[] = [
     code: '1.8',
     group: 'V. Kết quả khắc phục hạn chế',
     title:
-      'Chủ động xây dựng kế hoạch và khắc phục triệt để các hạn chế, khuyết điểm đã được chỉ ra trong kỳ kiểm điểm năm trước hoặc qua thanh tra, kiểm tra, giám sát.',
+      'Chủ động xây dựng kế hoạch và khắc phục triệt để các hạn chế, khuyết điểm đã được chỉ ra trong kỳ kiểm điểm trước hoặc qua thanh tra, kiểm tra, giám sát.',
     maxScore: 4.0,
     selfScore: 3.0,
     appraisedScore: 3.0,
     passed: true,
+    ratingLevel: 0.75,
+    legalCitation: 'Quy định 366-QĐ/TW · Công văn 2772 · Phụ lục 1 mục 5',
+    scoringGuide:
+      'Thực hiện nghiêm túc cam kết khắc phục hạn chế đã đăng ký đầu năm. Lưu ý tại Đơn vị sự nghiệp công lập: Nếu kỳ trước không có hạn chế/khuyết điểm nào được chỉ ra thì chọn KPH (Không phát sinh — không trừ điểm, tự quy về thang 30), không chọn mức 0.',
     note: 'Đã khắc phục xong 100% hạn chế năm 2025',
   },
 ];

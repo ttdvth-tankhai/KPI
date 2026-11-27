@@ -23,7 +23,16 @@ export interface DigitalEvidenceFile {
 export type UnitGovernanceType =
   | 'party_org' // Khối Đảng, Mặt trận & Đoàn thể (Quy định 366-QĐ/TW & Hướng dẫn 02)
   | 'state_admin' // Cơ quan Hành chính Nhà nước (Liên thông QĐ 366 & Nghị định 90/2020/NĐ-CP)
-  | 'public_service_center'; // Đơn vị sự nghiệp công lập / Trung tâm Dịch vụ tổng hợp (Quy chế đánh giá Viên chức & NLĐ riêng)
+  | 'public_service_center'; // Khối Đơn vị Sự nghiệp công lập (Trường học, Trung tâm Dịch vụ tổng hợp, Y tế, Ban QLDA...)
+
+export type PublicServiceUnitSubtype =
+  | 'trung_tam_dich_vu_tong_hop'
+  | 'truong_hoc_giao_duc'
+  | 'y_te_benh_vien'
+  | 'van_hoa_the_thao'
+  | 'ban_qlda_su_nghiep_khac';
+
+export type CriterionRatingLevel = 1 | 0.75 | 0.5 | 0.25 | 0 | 'KPH';
 
 export type LegalBasisDocType =
   | 'Quyet_dinh_phan_cong'
@@ -106,6 +115,9 @@ export interface GeneralCriterion {
   appraisedScore: number;
   passed: boolean;
   note: string;
+  ratingLevel?: CriterionRatingLevel;
+  legalCitation?: string;
+  scoringGuide?: string;
 }
 
 export interface QuarterSummaryRecord {
@@ -134,6 +146,7 @@ export interface UserProfile {
   email: string;
   phone: string;
   governanceType?: UnitGovernanceType;
+  publicServiceSubtype?: PublicServiceUnitSubtype;
   legalBasisDocNumber?: string;
   citizenSatisfactionRate?: number;
   contractType?:
@@ -384,6 +397,8 @@ export function calculateWeightedQuarterKpi(
 
 /**
  * Sums the general criteria scores (max 30 points by default under QĐ 366).
+ * Supports KPH (Không phát sinh / Không thuộc nhiệm vụ) for Public Service Units:
+ * criteria marked KPH are excluded from the denominator and automatically normalized back to the 30-point scale.
  */
 export function calculateGeneralCriteriaScore(
   criteria: GeneralCriterion[],
@@ -392,25 +407,52 @@ export function calculateGeneralCriteriaScore(
   selfTotal: number;
   appraisedTotal: number;
   maxTotal: number;
+  activeMaxTotal: number;
+  rawSelfTotal: number;
+  kphCount: number;
 } {
   let selfSum = 0;
   let appraisedSum = 0;
   let maxSum = 0;
+  let activeMaxSum = 0;
+  let kphCount = 0;
 
   for (const item of criteria) {
-    maxSum += Number(item.maxScore) || 0;
+    const itemMax = Number(item.maxScore) || 0;
+    maxSum += itemMax;
+
+    if (item.ratingLevel === 'KPH') {
+      kphCount += 1;
+      continue;
+    }
+
+    activeMaxSum += itemMax;
     selfSum += item.passed
-      ? Math.min(Number(item.selfScore) || 0, Number(item.maxScore) || 0)
+      ? Math.min(Number(item.selfScore) || 0, itemMax)
       : 0;
     appraisedSum += item.passed
-      ? Math.min(Number(item.appraisedScore) || 0, Number(item.maxScore) || 0)
+      ? Math.min(Number(item.appraisedScore) || 0, itemMax)
       : 0;
   }
 
+  let scaledSelf = selfSum;
+  let scaledAppraised = appraisedSum;
+
+  if (kphCount > 0 && activeMaxSum > 0) {
+    scaledSelf = (selfSum / activeMaxSum) * maxGeneralPillar;
+    scaledAppraised = (appraisedSum / activeMaxSum) * maxGeneralPillar;
+  }
+
   return {
-    selfTotal: Math.min(maxGeneralPillar, Math.round(selfSum * 100) / 100),
-    appraisedTotal: Math.min(maxGeneralPillar, Math.round(appraisedSum * 100) / 100),
+    selfTotal: Math.min(maxGeneralPillar, Math.round((scaledSelf + 1e-9) * 100) / 100),
+    appraisedTotal: Math.min(
+      maxGeneralPillar,
+      Math.round((scaledAppraised + 1e-9) * 100) / 100
+    ),
     maxTotal: Math.min(maxGeneralPillar, Math.round(maxSum * 100) / 100),
+    activeMaxTotal: Math.round(activeMaxSum * 100) / 100,
+    rawSelfTotal: Math.round(selfSum * 100) / 100,
+    kphCount,
   };
 }
 
